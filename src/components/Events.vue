@@ -21,6 +21,7 @@
   <script>
   import axios from 'axios';
   import Swal from 'sweetalert2';
+  import { mapGetters } from 'vuex';
   
   export default {
     data() {
@@ -29,9 +30,12 @@
         filteredEvents: []
       };
     },
+    computed: {
+      ...mapGetters(['apiUrl'])
+    },
     async created() {
       try {
-        const response = await axios.get('/api/events');
+        const response = await axios.get(`${this.apiUrl}/events`);
         this.events = response.data;
         this.filteredEvents = response.data;
       } catch (error) {
@@ -41,7 +45,6 @@
     },
     methods: {
       filterEvents(filter) {
-        console.console.log(event.date);
         if (filter === 'today') {
           this.filteredEvents = this.events.filter(event => new Date(event.date).toDateString() === new Date().toDateString());
         } else if (filter === 'tomorrow') {
@@ -56,11 +59,9 @@
           this.filteredEvents = this.events;
         }
       },
-     
-      
       async registerForEvent(eventId) {
         try {
-          const response = await axios.post(`/api/events/${eventId}/register`);
+          const response = await axios.post(`${this.apiUrl}/events/${eventId}/register`);
           // Handle successful registration
           console.log(response.data);
         } catch (error) {

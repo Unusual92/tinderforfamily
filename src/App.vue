@@ -4,10 +4,12 @@
       <div class="container mx-auto flex justify-between items-center">
         <div class="text-2xl font-bold">Family Fun</div>
         <div class="space-x-4">
-          <router-link to="/family" class="hover:underline transition duration-300">Семья</router-link>
-          <router-link to="/events" class="hover:underline transition duration-300">События</router-link>
-          <router-link to="/create-event" class="hover:underline transition duration-300">Создать Ивент</router-link>
-          <router-link to="/create-family" class="hover:underline transition duration-300">Создать Семью</router-link>
+          <router-link v-if="!isAuthenticated" to="/login" class="hover:underline transition duration-300">Войти</router-link>
+          <router-link v-if="!isAuthenticated" to="/register" class="hover:underline transition duration-300">Регистрация</router-link>
+          <router-link v-if="isAuthenticated" to="/family" class="hover:underline transition duration-300">Семья</router-link>
+          <router-link v-if="isAuthenticated" to="/events" class="hover:underline transition duration-300">События</router-link>
+          <router-link v-if="isAuthenticated" to="/create-event" class="hover:underline transition duration-300">Создать Ивент</router-link>
+          <button v-if="isAuthenticated" @click="logout" class="hover:underline transition duration-300">Выйти</button>
         </div>
       </div>
     </nav>
@@ -16,8 +18,20 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
-  name: 'App'
+  name: 'App',
+  computed: {
+    ...mapGetters(['isAuthenticated'])
+  },
+  methods: {
+    ...mapActions(['logout']),
+    logout() {
+      this.$store.dispatch('logout');
+      this.$router.push('/login');
+    }
+  }
 };
 </script>
 

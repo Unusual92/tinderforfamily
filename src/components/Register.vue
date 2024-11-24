@@ -4,12 +4,32 @@
         <h2 class="text-2xl font-bold mb-6 text-center">Регистрация</h2>
         <form @submit.prevent="register" class="space-y-4">
           <div>
-            <label class="block text-gray-700">Name</label>
-            <input v-model="name" type="text" placeholder="Name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+            <label class="block text-gray-700">Username</label>
+            <input v-model="username" type="text" placeholder="Username" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+          </div>
+          <div>
+            <label class="block text-gray-700">First Name</label>
+            <input v-model="first_name" type="text" placeholder="First Name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+          </div>
+          <div>
+            <label class="block text-gray-700">Last Name</label>
+            <input v-model="last_name" type="text" placeholder="Last Name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
           </div>
           <div>
             <label class="block text-gray-700">Email</label>
             <input v-model="email" type="email" placeholder="Email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+          </div>
+          <div>
+            <label class="block text-gray-700">Age</label>
+            <input v-model="age" type="number" placeholder="Age" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" />
+          </div>
+          <div>
+            <label class="block text-gray-700">Gender</label>
+            <select v-model="gender" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
           </div>
           <div>
             <label class="block text-gray-700">Password</label>
@@ -22,28 +42,42 @@
   </template>
   
   <script>
-  import axios from 'axios';
+  import axiosInstance from '../plugins/axios';
+  import { mapGetters, mapActions } from 'vuex';
   import Swal from 'sweetalert2';
   
   export default {
     data() {
       return {
-        name: '',
+        username: '',
+        first_name: '',
+        last_name: '',
         email: '',
+        age: '',
+        gender: '',
         password: ''
       };
     },
+    computed: {
+      ...mapGetters(['apiUrl'])
+    },
     methods: {
+      ...mapActions(['login', 'setToken']),
       async register() {
         try {
-          const response = await axios.post('/api/register', {
-            name: this.name,
+          const response = await axiosInstance.post('/auth/register', {
+            username: this.username,
+            first_name: this.first_name,
+            last_name: this.last_name,
             email: this.email,
+            age: this.age,
+            gender: this.gender,
             password: this.password
           });
-          // Handle successful registration
-          console.log(response.data);
-          this.$router.push('/login');
+          const token = response.data.Access_token;
+          this.$store.dispatch('setToken', token);
+          this.$store.dispatch('login', response.data.user);
+          this.$router.push('/family');
         } catch (error) {
           console.error(error);
           this.showErrorAlert();

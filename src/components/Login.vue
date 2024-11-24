@@ -18,7 +18,8 @@
   </template>
   
   <script>
-  import axios from 'axios';
+  import axiosInstance from '../plugins/axios';
+  import { mapGetters, mapActions } from 'vuex';
   import Swal from 'sweetalert2';
   
   export default {
@@ -28,15 +29,20 @@
         password: ''
       };
     },
+    computed: {
+      ...mapGetters(['apiUrl'])
+    },
     methods: {
+      ...mapActions(['login', 'setToken']),
       async login() {
         try {
-          const response = await axios.post('/api/login', {
+          const response = await axiosInstance.post('/auth/login', {
             email: this.email,
             password: this.password
           });
-          // Handle successful login
-          console.log(response.data);
+          const token = response.data.Access_token;
+          this.$store.dispatch('setToken', token);
+          this.$store.dispatch('login', response.data.user);
           this.$router.push('/family');
         } catch (error) {
           console.error(error);
